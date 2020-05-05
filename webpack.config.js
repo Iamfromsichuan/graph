@@ -7,7 +7,7 @@ const CopyWebpackPlugin = require('copy-webpack-plugin');
 process.env.NODE_ENV = 'development';
 
 module.exports = {
-  entry: ['./src/path.js', './src/index.html'],
+  entry: ['./src/geo.js', './src/index.html'],
 
   output: {
     filename: 'built.js',
@@ -90,7 +90,7 @@ module.exports = {
         use: 'html-loader'
       },
       {
-        exclude: /\.(css|js|html|less|png|jpg|csv)$/,
+        exclude: /\.(css|js|html|less|png|jpg|csv|json)$/,
         use: 'file-loader'
       },
       // 语法检查只需要查自己写的代码
@@ -139,6 +139,17 @@ module.exports = {
             ]
           ],
         }
+      },
+      // {
+      //   test: /\.json$/,
+      //   loader: 'json-loader',
+      //   exclude: /node_modules/,
+      // },
+      {
+        // 使所有以 .json5 结尾的文件使用 `json5-loader`
+        test: /\.json5$/,
+        loader: 'json5-loader',
+        exclude: /node_modules/,
       }
     ]
   },
@@ -165,6 +176,7 @@ module.exports = {
     }),
     new CopyWebpackPlugin([{
       from: path.resolve(__dirname, './src/assets'),
+      to: path.resolve(__dirname, 'build/assets'),
     }])
   ],
   // devtool: 'eval-source-map',

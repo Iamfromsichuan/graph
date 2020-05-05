@@ -152,16 +152,15 @@ d3.csv('./pro.csv').then(data => {
   init(data);
 
   let c = 0;
-  // render_update_datum(data);
+  console.log(allkeys.length);
   let timer = setInterval(() => {
-    if (c > allkeys.length) {
+    if (c > allkeys.length - 1) {
       clearInterval(timer);
       timer = null;
-    } else {
-      render_update_datum(provinces[allkeys[c]]);
-      c++;
-      console.log(data[c]);
-      console.log(timer);
+      return
     }
+    render_update_datum(provinces[allkeys[c]]);
+    c += 1;
+    console.log(c);
   }, duration)
 })

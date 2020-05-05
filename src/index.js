@@ -34,7 +34,7 @@ const init = data => {
     top: 60,
     right: 30,
     bottom: 60,
-    left: 140,
+    left: 30,
   }
   const innerWidth = width - margin.left - margin.right;
   const innerHeigth = height - margin.top - margin.bottom;
