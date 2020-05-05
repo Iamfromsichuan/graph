@@ -167,6 +167,7 @@ module.exports = {
       from: path.resolve(__dirname, './src/assets'),
     }])
   ],
+  // devtool: 'eval-source-map',
   mode: 'development', //development  production
   // 开发服务器devServer 只会在内存中打包编译
   // 不会有任何的输出, 启动指令是npx webpack-dev-server

@@ -1,8 +1,8 @@
 import * as d3 from 'd3';
 
-const xValue = d => d['日期']; //Math.log(d['确诊人数'] + 1);
-const yValue = d => d['现有确诊']; // Math.log(d['新增确诊'] + 1);
-const duration = 1000;
+const xValue = datum => datum['日期'];; // d => d['日期']; //
+const yValue = datum => datum['现有确诊']; //  d => d['现有确诊'];
+const duration = 2000;
 let xScale;
 let yScale;
 let alldates;
@@ -70,6 +70,8 @@ const init = data => {
   g.append('text').text('新增人数（对数）')
     .attr('transform', `translate(0, ${(innerHeigth + margin.top) / 2})  rotate(-90deg)`)
     .attr('text-anchor', 'middle')
+
+  g.append('path').attr('id', 'alterpath');
 }
 
 const renderUpate = seq => {
@@ -93,6 +95,22 @@ const renderUpate = seq => {
     .attr('cy', d => yScale(yValue(d)));
 }
 
+const render_update_datum = data => {
+  console.log(1)
+  const line = d3.line()
+    .x(d => xScale(xValue(d)))
+    .y(d => yScale(yValue(d)))
+    .curve(d3.curveCardinal.tension(0.5))
+
+  d3.select('#alterpath').datum(data)
+    .attr('stroke', 'green')
+    .attr('stroke-width', 2.5)
+    .attr('fill', 'none')
+    .transition()
+    .duration(2000)
+    .attr('d', line)
+}
+
 d3.csv('./pro.csv').then(data => {
 
 
@@ -105,7 +123,8 @@ d3.csv('./pro.csv').then(data => {
 
   data.forEach(d => {
     d['确诊人数'] = +(d['确诊人数']);
-    
+    d['现有确诊'] = +(d['现有确诊']);
+
     d['日期'] = new Date(d['日期'])
     console.log(d['日期']);
   })
@@ -133,16 +152,16 @@ d3.csv('./pro.csv').then(data => {
   init(data);
 
   let c = 0;
-  //   let timer = setInterval(() => {
-  //     if (c > alldates.length) {
-  //       clearInterval(timer);
-  //       timer = null;
-  //     } else {
-  //       renderUpate(sequential[c]);
-  //       c++;
-  //       console.log(sequential[c]);
-  //       console.log(timer);
-  //     }
-  //   }, duration)
-
+  // render_update_datum(data);
+  let timer = setInterval(() => {
+    if (c > allkeys.length) {
+      clearInterval(timer);
+      timer = null;
+    } else {
+      render_update_datum(provinces[allkeys[c]]);
+      c++;
+      console.log(data[c]);
+      console.log(timer);
+    }
+  }, duration)
 })
