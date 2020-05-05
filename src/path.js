@@ -1,11 +1,11 @@
 import * as d3 from 'd3';
 
-const xValue = d => d['确诊人数'];//Math.log(d['确诊人数'] + 1);
-const yValue = d => d['新增确诊']; // Math.log(d['新增确诊'] + 1);
+const xValue = d => d['日期']; //Math.log(d['确诊人数'] + 1);
+const yValue = d => d['现有确诊']; // Math.log(d['新增确诊'] + 1);
 const duration = 1000;
 let xScale;
 let yScale;
-
+let alldates;
 var color = {
   "武汉": "#ff1c12",
   "黄石": "#de5991",
@@ -39,7 +39,7 @@ const init = data => {
   const innerWidth = width - margin.left - margin.right;
   const innerHeigth = height - margin.top - margin.bottom;
 
-  xScale = d3.scaleLinear()
+  xScale = d3.scaleTime()
     .domain([d3.min(data, xValue), d3.max(data, xValue)])
     .range([0, innerWidth])
     .nice();
@@ -57,6 +57,8 @@ const init = data => {
   g.append('g').call(yAxis);
 
   const xAixs = d3.axisBottom(xScale)
+    .ticks(Math.floor(alldates.length / 4))
+    // .tickFormat(d3.timeFormat('%m-%d'))
     .tickSize(-innerHeigth);
   g.append('g').call(xAixs)
     .attr('transform', `translate(${0}, ${innerHeigth})`);
@@ -91,50 +93,56 @@ const renderUpate = seq => {
     .attr('cy', d => yScale(yValue(d)));
 }
 
-d3.csv('./h.csv').then(data => {
-  data = data.filter(d => d['地区'] !== '总计')
-  data.forEach(d => {
-    d['确诊人数'] = +(d['确诊人数']);
-    d['新增确诊'] = +(d['新增确诊']);
-    if (d['确诊人数'] < 0) {
-      d['确诊人数'] = 0
-    }
-  })
+d3.csv('./pro.csv').then(data => {
 
-  let alldates = Array.from(new Set(
+
+  data = data.filter(d => d['省份'] !== '总计');
+  data = data.filter(d => d['省份'] !== '湖北');
+
+  alldates = Array.from(new Set(
     data.map(d => d['日期'])
   ))
 
-  alldates = alldates.sort((a, b) => {
-    console.log(new Date(a) - new Date(b));
-    return new Date(a) - new Date(b);
+  data.forEach(d => {
+    d['确诊人数'] = +(d['确诊人数']);
+    
+    d['日期'] = new Date(d['日期'])
+    console.log(d['日期']);
   })
 
-  let sequential = [];
-  alldates.forEach(d => {
-    sequential.push([])
+  let provinces = {};
+
+  let allkeys = Array.from(new Set(
+    data.map(d => d['省份'])
+  ))
+
+  console.log(alldates);
+
+  allkeys.forEach(key => {
+    provinces[key] = [];
   })
 
   data.forEach(d => {
-    sequential[alldates.indexOf(d['日期'])].push(d);
+    provinces[d['省份']].push(d);
   })
 
+  allkeys.forEach(key => {
+    provinces[key] = provinces[key].sort((a, b) => b['日期'] - a['日期']);
+  })
 
-  console.log(data);
-  console.log(sequential);
   init(data);
 
   let c = 0;
-  let timer = setInterval(() => {
-    if (c > alldates.length) {
-      clearInterval(timer);
-      timer = null;
-    } else {
-      renderUpate(sequential[c]);
-      c++;
-      console.log(sequential[c]);
-      console.log(timer);
-    }
-  }, duration)
+  //   let timer = setInterval(() => {
+  //     if (c > alldates.length) {
+  //       clearInterval(timer);
+  //       timer = null;
+  //     } else {
+  //       renderUpate(sequential[c]);
+  //       c++;
+  //       console.log(sequential[c]);
+  //       console.log(timer);
+  //     }
+  //   }, duration)
 
 })

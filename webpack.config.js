@@ -3,18 +3,18 @@ const HtmlWebpackPlugin = require('html-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const OptimizeCssAssetsWebpackPlugin = require('optimize-css-assets-webpack-plugin');
 const WorkboxWebpackPlugin = require('workbox-webpack-plugin');
+const CopyWebpackPlugin = require('copy-webpack-plugin');
 process.env.NODE_ENV = 'development';
 
 module.exports = {
-  entry: './src/index.js',
+  entry: ['./src/path.js', './src/index.html'],
 
   output: {
     filename: 'built.js',
     path: path.resolve(__dirname, './build'),
   },
   module: {
-    rules: [
-      {
+    rules: [{
         // 注意不要写成 '/\.css$/'
         test: /\.css$/,
         use: [
@@ -24,23 +24,23 @@ module.exports = {
           // 将css作为js模块加载到js中，内容是字符串
           'css-loader',
           // 下面这样写可以自定义配置，上方是默认配置
-					/**
-					 默认采用的生产环境，这里不是webpack配置的环境
-					 是node运行时的临时参数 
-					 process.env.NODE_ENV = development
-					 "browerslist": {
-							"development": [
-								"last 1 chrome version",
-								"last 1 firefox version",
-								"last 1 safari version"
-							],
-							"production": [
-								">0.2%",
-								"not dead",
-								"not op_mini all"
-							]
-						}
-					 */
+          /**
+           默认采用的生产环境，这里不是webpack配置的环境
+           是node运行时的临时参数 
+           process.env.NODE_ENV = development
+           "browerslist": {
+          		"development": [
+          			"last 1 chrome version",
+          			"last 1 firefox version",
+          			"last 1 safari version"
+          		],
+          		"production": [
+          			">0.2%",
+          			"not dead",
+          			"not op_mini all"
+          		]
+          	}
+           */
           {
             loader: 'postcss-loader',
             options: {
@@ -71,7 +71,7 @@ module.exports = {
         ],
       },
       {
-        test: /\.(jpg|png|gif)$/,
+        test: /\.(jpg|png|gif|csv)$/,
         loader: 'url-loader',
         options: {
           // 小8k，处理成base64
@@ -90,7 +90,7 @@ module.exports = {
         use: 'html-loader'
       },
       {
-        exclude: /\.(css|js|html|less|png|jpg)$/,
+        exclude: /\.(css|js|html|less|png|jpg|csv)$/,
         use: 'file-loader'
       },
       // 语法检查只需要查自己写的代码
@@ -162,7 +162,10 @@ module.exports = {
        */
       clientsClaim: true,
       skipWaiting: true,
-    })
+    }),
+    new CopyWebpackPlugin([{
+      from: path.resolve(__dirname, './src/assets'),
+    }])
   ],
   mode: 'development', //development  production
   // 开发服务器devServer 只会在内存中打包编译
@@ -173,5 +176,6 @@ module.exports = {
     port: 3000,
     // 编译完打开浏览器
     open: true,
+    hot: true,
   }
 }
